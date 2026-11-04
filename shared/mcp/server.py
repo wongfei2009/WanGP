@@ -2174,7 +2174,10 @@ def build_server_for_session(session, settings: dict[str, Any] | None = None, to
         sandbox_toolbox = get_toolbox()
         action_name = str(action or "").strip()
         actions = _toolbox_discovery(sandbox_toolbox, allow_read_file_system)
-        if api_version != "2.1":
+        # Fork-only: upstream hides these two from every version but 2.1. The
+        # wangp CLI pins v1 (its tools vanish under 2.x), so v1 keeps them too
+        # (`wangp lipsync`); only the frozen "2" contract still drops them.
+        if api_version == "2":
             actions = [action for action in actions if action["name"] not in ("inspect_audio", "check_lip_sync")]
         if not action_name:
             compact_actions = [{"name": candidate["name"], "description": candidate.get("description", "")} for candidate in actions]
