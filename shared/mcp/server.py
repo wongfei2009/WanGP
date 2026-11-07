@@ -2184,13 +2184,12 @@ def build_server_for_session(session, settings: dict[str, Any] | None = None, to
         sandbox_toolbox = get_toolbox()
         action_name = str(action or "").strip()
         actions = _toolbox_discovery(sandbox_toolbox, allow_read_file_system)
-        # Fork-only: upstream hides these two from every version but 2.1. The
-        # wangp CLI pins v1 (its tools vanish under 2.x), so v1 keeps them too
-        # (`wangp lipsync`); only the frozen "2" contract still drops them.
+        # Fork-only: upstream hides these from every version but 2.1. The wangp
+        # CLI pins v1 (its tools vanish under 2.x), so v1 keeps them too
+        # (`wangp lipsync`, `wangp cuts`); only the frozen "2" contract still
+        # drops them. The video-edit three stay out of discovery, as upstream.
         if api_version == "2":
-            actions = [action for action in actions if action["name"] not in ("inspect_audio", "check_lip_sync")]
-        if api_version != "2.1":
-            actions = [action for action in actions if action["name"] not in ("detect_video_cuts", "plan_video_windows", "check_video_edit")]
+            actions = [action for action in actions if action["name"] not in ("inspect_audio", "check_lip_sync", "detect_video_cuts", "plan_video_windows", "check_video_edit")]
         if not action_name:
             compact_actions = [{"name": candidate["name"], "description": candidate.get("description", "")} for candidate in actions if candidate["name"] not in ("detect_video_cuts", "plan_video_windows", "check_video_edit")]
             return {"status": "discovery", "actions": compact_actions, "count": len(compact_actions), "next": "Call again with one action and omit arguments to get its exact schema."}
